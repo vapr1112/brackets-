@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stack>
 #include <string>
+#include "bracket_error.h"
 
 using namespace std;
 
@@ -10,53 +11,41 @@ int main()
 
 	stack<char> stack;
 
-	char symbol, braket;
-
 	string line;
 
-	cout << "\nвведите строку\n";
-
-	getline(cin, line, ';');
-
-	for (size_t i = 0; i < line.size(); i++)
+	try
 	{
-		symbol = line[i];
-		//проверяем является ли символ открывающей скобкой
-		if (symbol == '(' || symbol == '[' || symbol == '{')
+		cout << "\nвведите строку\n";
+
+		getline(cin, line, ';');
+		//стек не поддерживает for с диапозоном
+		for (size_t i = 0; i < line.size(); i++)
 		{
-			//если тaк то записываем в стек
-			stack.push(symbol);
-		}
-		//в ином случве проверяем, является ли символ закрывающей скобкой
-		else if (symbol == ')' || symbol == ']' || symbol == '}')
-		{
-			//проверяем, есть ли у скобки пара
-			if (symbol == ')')
+			//проверяем является ли символ открывающей скобкой
+			if (line[i] == '(' || line[i] == '[' || line[i] == '{')
 			{
-				braket = '(';
+				//если тaк то записываем в стек
+				stack.push(line[i]);
 			}
 
-			else if (symbol == ']')
+
+			//в ином случве проверяем, является ли символ закрывающей скобкой
+			else if (line[i] == ')' || line[i] == ']' || line[i] == '}' && !stack.empty() && stack.top() == line[i])
 			{
-				braket = '[';
-			}
-			
-			else 
-			{
-				braket = '{';
-			}
-			//проверяем остались ли скобки в стеке или последняя скобка не является открывающей
-			if (stack.empty() || stack.top() != braket)
-			{
-				cout << "\nскобки расставлены неправильно\n";
-				return 0;
+				if (stack.empty() || stack.top() != '(' || stack.top() != '[' || stack.top() != '{') throw bracket_error("скобки расставлены не верно");
+				//если у скобки нашли пару, удаляем последнюю открывающую скобку из стека
+				stack.pop();
 			}
 
-			//если у скобки нашли пару, удаляем последнюю открывающую скобку из стека
-			stack.pop();
+
 		}
+		cout << "\nскобки расставлены верно\n";
+
 	}
-	cout << "\nскобки расставлены верно\n";
 
+	catch (const bracket_error& bracket)
+	{
+		cout << bracket.what();
+	}
 	return 0;
 }
